@@ -28,7 +28,8 @@ def get_events(db: Session = Depends(get_db)):
     return events
 @router.get("/event/{id}")
 def get_event(*, db: Session = Depends(get_db), id: int):
-    event = db.get(models.Event, id)
+    result = db.execute(select(models.Event).where(models.Event.id == id))
+    event = result.scalars().all()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return event
@@ -65,4 +66,5 @@ def update_event(*, db: Session = Depends(get_db), id: int, event: EventBase):
 @router.delete("/events/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(*, db: Session = Depends(get_db), id: int):
     db.execute(delete(models.Event).where(models.Event.id == id))
+    db.commit()
     
