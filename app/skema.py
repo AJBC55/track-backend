@@ -45,15 +45,15 @@ class News(NewsBase):
     
 #pydantic model for a user
 class UserBase(BaseModel):
-    name_first : Optional[str]
-    name_last: Optional[str]
     email: str
-    pasword:str
+    password:str
+    name_first: Optional[str]
+    name_last: Optional[str]
 
 # pydantic model for user 
 class User(UserBase):
     id: int
-    date_created: str
+   
     
     class from_atributes:
         orm_mode = True

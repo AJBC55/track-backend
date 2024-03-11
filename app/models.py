@@ -18,7 +18,7 @@ class Event(Base):
     time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     img: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     link: Mapped[str] = mapped_column(primary_key=False, nullable=True)
-    created_at = Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
+    created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
     
     
 class News(Base):
@@ -35,10 +35,10 @@ class News(Base):
 class User(Base): 
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    name_first: Mapped[str] = mapped_column(primary_key=False, nullable=True)
-    name_last: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(primary_key=False)
+    name_first: Mapped[str] = mapped_column(primary_key=False, nullable=True)
+    name_last: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
     
     
