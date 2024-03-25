@@ -27,8 +27,7 @@ def get_users(*,db: Session = Depends(get_db)):
     return users 
 @router.get("/user", response_model= UserInfo)
 def get_user(db:Session = Depends(get_db), user_id: User= Depends(oauth2.get_current_user)):
-   return user_id
-    
+    return user_id
     
 
 
