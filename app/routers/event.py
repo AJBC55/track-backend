@@ -5,7 +5,7 @@ from app.database import get_db
 from sqlalchemy.orm import Session
 from app import models
 from app.skema import Event, EventBase
-from typing import List
+from typing import List, Optional
 from sqlalchemy import select, update, delete, insert
 
 
@@ -14,8 +14,8 @@ from sqlalchemy import select, update, delete, insert
 router  = APIRouter(prefix="/info")
 
 @router.get("/events", response_model=List[Event])
-def get_events(db: Session = Depends(get_db)):
-    result = db.execute(select(models.Event))
+def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "" ):
+    result = db.execute(select(models.Event).limit(limit).offset(skip).where(models.Event.name.contains(search)))
     events = result.scalars().all()  # It should be scalars().all(), not scalars.all()
     if not events:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")

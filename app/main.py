@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .database import  engine
-from .routers import event, news, user
+from .routers import event, news, user, login 
 
 from . import models
 
@@ -16,6 +16,7 @@ app = FastAPI()
 app.include_router(event.router)
 app.include_router(news.router)
 app.include_router(user.router)
+app.include_router(login.router)
 
 
 

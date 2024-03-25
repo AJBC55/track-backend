@@ -1,5 +1,8 @@
+import datetime
 from pydantic import BaseModel
 from typing import List, Optional
+
+from sqlalchemy import DateTime
 
 
 
@@ -29,10 +32,10 @@ class Event(EventBase):
 
 # pydantic model for a news event
 class NewsBase(BaseModel):
-    track: Optional[str]
+    track: Optional[str] = None
     title: str
-    date: Optional[str]
-    body: Optional[str]
+    date: Optional[str] = None
+    body: Optional[str] = None 
     
 # sub pydantic model of news event:
 class News(NewsBase):
@@ -47,8 +50,8 @@ class News(NewsBase):
 class UserBase(BaseModel):
     email: str
     password:str
-    name_first: Optional[str]
-    name_last: Optional[str]
+    name_first: Optional[str] = None
+    name_last: Optional[str] = None
 
 # pydantic model for user 
 class User(UserBase):
@@ -57,3 +60,26 @@ class User(UserBase):
     
     class from_atributes:
         orm_mode = True
+        
+        
+        
+class UserInfo(BaseModel):
+    id: int
+    email:str
+    name_first: Optional[str] = None
+    name_last: Optional[str] = None
+    created_at: datetime.datetime
+    
+    class Config:
+        from_attributes  = True 
+    
+    
+    
+class UserLogin(BaseModel):
+    email: str
+    password: str 
+class Token(BaseModel):
+    access_token: str 
+    token_type: str 
+class TokenData(BaseModel):
+    id: Optional[int] = None
