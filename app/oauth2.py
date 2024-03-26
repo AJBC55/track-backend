@@ -57,5 +57,24 @@ def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(g
     request = db.execute(select(models.User).where(models.User.id == tk.id))
     user = request.scalars().first()
     return user 
+ 
+# optinal login 
+ns = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)   
+def try_token(token: str = Depends(ns)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     
+        id = payload.get("user_id")
+       
+        
+       
+        if id == None:
+            token_data = skema.TokenData()
+        else:
+            token_data = skema.TokenData(id=id)
+        
+    except:
+       token_data = skema.TokenData()
+    return token_data
+
     

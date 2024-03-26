@@ -88,3 +88,18 @@ class Token(BaseModel):
     
 class TokenData(BaseModel):
     id: Optional[int] = None
+    
+    
+#pydanic models for save result
+
+
+class EventOut(BaseModel):
+    id: int
+    track: str
+    name : str
+    date: str
+    description: Optional[str] = None 
+    time: Optional[List[str]] = None
+    img: Optional[str] = None
+    link: Optional[str] = None 
+    is_saved: Optional[bool] = False

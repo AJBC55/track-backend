@@ -14,22 +14,17 @@ from .. import oauth2
 
 
 
-router = APIRouter()
+router = APIRouter(tags=["User"])
 
 
 
-@router.get("/users", response_model= List[User])
+@router.get("/user", response_model= List[User])
 def get_users(*,db: Session = Depends(get_db)): 
     result = db.execute(select(models.User).limit(20))
     users = result.scalars().fetchall()
     if not users:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return users 
-@router.get("/user", response_model= UserInfo)
-def get_user(db:Session = Depends(get_db), user_id: User= Depends(oauth2.get_current_user)):
-    return user_id
-    
-
 
 
 

@@ -13,7 +13,7 @@ from typing import List
 
 
 
-router = APIRouter(prefix="/info")
+router = APIRouter(prefix="/info", tags=["Info", "News"])
 
 
 

@@ -1,9 +1,15 @@
 
 from .database import Base
-from sqlalchemy import FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy import FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import List
 
+
+save= Table(
+    "save",
+    Base.metadata,
+    Column("event_id", ForeignKey("event.id"), primary_key=True),
+    Column("user_id", ForeignKey("user.id"),primary_key=True))
 
 
 class Event(Base):
@@ -39,9 +45,12 @@ class User(Base):
     password: Mapped[str] = mapped_column(primary_key=False)
     name_first: Mapped[str] = mapped_column(primary_key=False, nullable=True)
     name_last: Mapped[str] = mapped_column(primary_key=False,nullable=True)
+    saved_events: Mapped[List[Event]] = relationship( secondary=save,cascade="all, delete")
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
+
     
+
+
+
+
     
-
-
-

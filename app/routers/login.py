@@ -11,12 +11,12 @@ from app import oauth2
 
 
 
-router = APIRouter()
+router = APIRouter(prefix="/login", tags=["Authentication"])
 
 
 
 
-@router.post("/login", response_model=Token)
+@router.post("", response_model=Token)
 def login(*, db: Session = Depends(get_db), login : OAuth2PasswordRequestForm = Depends()):
     password = login.password
     email = login.username 
