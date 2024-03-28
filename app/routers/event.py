@@ -4,7 +4,6 @@
 from pickletools import OpcodeInfo
 from unittest import result
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app import models
@@ -31,7 +30,7 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         smt = select(models.Event, models.save).join(
         models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True )
      
-        print(smt)
+        
         result = db.execute(smt)
         events = []
         for event, save, id in result:
@@ -43,15 +42,9 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
 
         return events
 
-@router.get("/events/save",response_model=List[Event])
-def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user), limit: int = 10):
-    result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id).limit(limit))
-    saved_events = result.scalars().all()
-    if not saved_events:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return saved_events
 
-@router.get("/events/user")
+
+"""@router.get("/events/user")
 def test(db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user)):
         smt = select(models.Event, models.save).join(
         models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True )
@@ -66,27 +59,9 @@ def test(db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_
         if not events:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")
 
-        return events
+        return events"""
 
-@router.post("/events/save/{id}")
-def save_event(*, db:Session = Depends(get_db), user: User = Depends(oauth2.get_current_user),id:int):
-    event_result = db.execute(select(models.Event).where(models.Event.id == id))
-    event = event_result.scalars().first()
-    if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "Event does not exist")
-    found = db.execute(select(models.save).where(models.save.c.user_id == user.id, models.save.c.event_id == id))
-    found_like = found.scalars().first()
-    if found_like:
-        db.execute(delete(models.save).where(models.save.c.user_id == user.id, models.save.c.event_id == id))
-        db.commit()
-        return {id : "unsaved"}
-    else:  
-        result = db.execute(insert(models.save).values(user_id = user.id, event_id = id).returning(models.save))
-        db.commit()
-        relation = result.scalars().all()
-        if not relation :
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could Not Save")
-        return {id: "saved"}
+
     
 
 @router.get("/events/{id}", response_model=Event)
