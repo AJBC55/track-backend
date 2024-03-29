@@ -18,7 +18,7 @@ router = APIRouter(tags=["User"])
 
 
 
-@router.get("/user", response_model= List[User])
+@router.get("/user", response_model= List[UserInfo])
 def get_users(*,db: Session = Depends(get_db)): 
     result = db.execute(select(models.User).limit(20))
     users = result.scalars().fetchall()

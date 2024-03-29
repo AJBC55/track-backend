@@ -9,10 +9,12 @@ from sqlalchemy.orm import Session
 from app import models
 from app.skema import Event, EventBase, EventOut
 from typing import List, Optional
-from sqlalchemy import outerjoin, select, update, delete, insert, and_
+from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_
+
+
 from .. skema import TokenData, User
 from .. import oauth2
-
+from datetime import datetime
 
 
 
@@ -35,10 +37,7 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         events = []
         for event, save, id in result:
               # 'event' is an instance of 'models.Event', 'save' could be 'models.save' or None
-            events.append(EventOut(id = event.id, track = event.track, name = event.name, date = event.date, description=event.description, time = event.time, img = event.img, link = event.link, is_saved = True if id else False))  # Assuming you still want to collect 'models.Event' instances
-
-        if not events:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")
+            events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img = event.img, link = event.link, is_saved = True if id else False))  
 
         return events
 
@@ -62,9 +61,9 @@ def test(db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_
         return events"""
 
 
-    
+   
 
-@router.get("/events/{id}", response_model=Event)
+@router.get("/events/{id}", response_model=EventOut)
 def get_event(*, db: Session = Depends(get_db), id: int):
     result = db.execute(select(models.Event).where(models.Event.id == id))
     event = result.scalars().first()
@@ -76,7 +75,12 @@ def get_event(*, db: Session = Depends(get_db), id: int):
 
 @router.post("/events",status_code=status.HTTP_201_CREATED, response_model= Event)
 def create_event(*, db: Session = Depends(get_db), event: EventBase):
-    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name, date=event.date, description = event.description, time=event.time, img = event.img, link = event.link))
+   
+    if event.event_start:
+        event_time = datetime(event.event_start.year, event.event_start.month, event.event_start.day, event.event_start.hour, event.event_start.minute)
+    else:
+        event_time = None
+    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name, event_start = event_time, description = event.description, time=event.time, img = event.img, link = event.link))
     db.commit()
     created = result.scalars().first()
     if not created:

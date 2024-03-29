@@ -1,8 +1,10 @@
 
 from .database import Base
-from sqlalchemy import FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey
+from sqlalchemy import TIMESTAMP, FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import List
+from datetime import datetime
+
 
 
 save = Table(
@@ -19,7 +21,9 @@ class Event(Base):
     id : Mapped[int] = mapped_column(primary_key=True, nullable=False)
     track: Mapped[str] = mapped_column(primary_key=False, nullable=True)
     name: Mapped[str] = mapped_column(primary_key=False, nullable=False)
-    date: Mapped[str] = mapped_column(primary_key=False,nullable=False)
+    event_start: Mapped[str] = mapped_column(DateTime, nullable=True)
+    event_end: Mapped[str] = mapped_column(DateTime, nullable=True)
+    time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     description: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     img: Mapped[str] = mapped_column(primary_key=False,nullable=True)

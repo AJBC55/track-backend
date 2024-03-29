@@ -2,10 +2,16 @@ import datetime
 from pydantic import BaseModel
 from typing import List, Optional
 
-from sqlalchemy import DateTime
 
 
-
+class DateTime(BaseModel):
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+    
+    
 
 
 
@@ -13,7 +19,9 @@ from sqlalchemy import DateTime
 class EventBase(BaseModel):
     track: str
     name : str
-    date: str
+    event_start: Optional[DateTime] = None
+    event_end: Optional[DateTime] = None
+    
     description: Optional[str] = None 
     time: Optional[List[str]] = None
     img: Optional[str] = None
@@ -24,6 +32,7 @@ class EventBase(BaseModel):
 # this is the pydantic model that will be returned in the api  
 class Event(EventBase):
     id: int
+    event_start: Optional[datetime.datetime]
     
     
     class from_atributes:
@@ -97,9 +106,9 @@ class EventOut(BaseModel):
     id: int
     track: str
     name : str
-    date: str
     description: Optional[str] = None 
     time: Optional[List[str]] = None
     img: Optional[str] = None
-    link: Optional[str] = None 
+    link: Optional[str] = None
+    event_start: Optional[datetime.datetime]
     is_saved: Optional[bool] = False
