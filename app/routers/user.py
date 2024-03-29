@@ -19,7 +19,9 @@ router = APIRouter(tags=["User"])
 
 
 @router.get("/user", response_model= List[UserInfo])
-def get_users(*,db: Session = Depends(get_db)): 
+def get_users(*,db: Session = Depends(get_db), admin: User = Depends(oauth2.get_current_user)): 
+    if not admin.is_admin:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Admin privaleges required")
     result = db.execute(select(models.User).limit(20))
     users = result.scalars().fetchall()
     if not users:
@@ -47,7 +49,7 @@ def create_user(*, db: Session = Depends(get_db), user_data: UserBase):
         email=user_data.email,
         password=hashed_password, 
         name_first=user_data.name_first,
-        name_last=user_data.name_last).returning(models.User))
+        name_last=user_data.name_last, is_admin = False).returning(models.User))
     except:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT)
         
@@ -62,7 +64,9 @@ def create_user(*, db: Session = Depends(get_db), user_data: UserBase):
 
 
 @router.put("/user/{id}", response_model=User, status_code=status.HTTP_201_CREATED)
-def update_user(*, db: Session = Depends(get_db), user: UserBase, id: int):
+def update_user(*, db: Session = Depends(get_db), user: UserBase, id: int, usr: User = Depends(oauth2.get_current_user)):
+    if not usr.is_admin or usr.id != id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     user_dict = user.model_dump(exclude_none=True)
     result = db.execute(update(models.User).where(models.User.id == id).values(**user_dict).returning(models.User))
     updated = result.scalars().first()
@@ -73,7 +77,10 @@ def update_user(*, db: Session = Depends(get_db), user: UserBase, id: int):
 
 
 @router.delete("/user/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(*, db: Session = Depends(get_db), id: int):
+def delete_user(*, db: Session = Depends(get_db), id: int, usr: User = Depends(oauth2.get_current_user)):
+    if not usr.is_admin or usr.id != id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    
     result = db.execute(delete(models.User).returning(models.User).where(models.User.id == id))
     deleted = result.scalar()
     db.commit()

@@ -10,8 +10,8 @@ from datetime import datetime
 save = Table(
     "save",
     Base.metadata,
-    Column("event_id", ForeignKey("event.id"), primary_key=True),
-    Column("user_id", ForeignKey("user.id"),primary_key=True))
+    Column("event_id", ForeignKey("event.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", ForeignKey("user.id", ondelete="CASCADE"),primary_key=True))
 
 
 class Event(Base):
@@ -49,8 +49,8 @@ class User(Base):
     password: Mapped[str] = mapped_column(primary_key=False)
     name_first: Mapped[str] = mapped_column(primary_key=False, nullable=True)
     name_last: Mapped[str] = mapped_column(primary_key=False,nullable=True)
-    is_admin: Mapped[bool] = mapped_column(primary_key=False, server_default=text("false"), nullable=True)
-    saved_events: Mapped[List[Event]] = relationship( secondary=save,cascade="all, delete")
+    is_admin: Mapped[bool] = mapped_column(primary_key=False, server_default=text("false"), nullable=True,)
+    saved_events: Mapped[List[Event]] = relationship( secondary=save)
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
 
     

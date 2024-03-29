@@ -1,5 +1,5 @@
 import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 
 
@@ -21,7 +21,6 @@ class EventBase(BaseModel):
     name : str
     event_start: Optional[DateTime] = None
     event_end: Optional[DateTime] = None
-    
     description: Optional[str] = None 
     time: Optional[List[str]] = None
     img: Optional[str] = None
@@ -57,14 +56,18 @@ class News(NewsBase):
     
 #pydantic model for a user
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr
     password:str
     name_first: Optional[str] = None
     name_last: Optional[str] = None
+    is_admin: Optional[bool] = False
+
 
 # pydantic model for user 
 class User(UserBase):
     id: int
+    is_admin: bool 
+    
    
     
     class from_atributes:

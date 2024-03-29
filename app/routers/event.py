@@ -18,9 +18,9 @@ from datetime import datetime
 
 
 
-router  = APIRouter(prefix="/info", tags=["Info", "Events"])
+router  = APIRouter(prefix="/events", tags=["Events"])
 
-@router.get("/events", response_model=List[EventOut])
+@router.get("", response_model=List[EventOut])
 def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: TokenData = Depends(oauth2.try_token)):
     if not user:
         result = db.execute(select(models.Event).limit(limit).offset(skip).where(models.Event.name.contains(search)))
@@ -42,6 +42,55 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         return events
 
 
+@router.get("/{id}", response_model=EventOut)
+def get_event(*, db: Session = Depends(get_db), id: int):
+    result = db.execute(select(models.Event).where(models.Event.id == id))
+    event = result.scalars().first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return event
+
+
+@router.get("/save",response_model=List[Event])
+def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user), limit: int = 10):
+    result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id).limit(limit))
+    saved_events = result.scalars().all()
+    if not saved_events:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return saved_events
+
+
+
+
+@router.post("/save/{id}")
+def save_event(*, db:Session = Depends(get_db), user: User = Depends(oauth2.get_current_user),id:int):
+    event_result = db.execute(select(models.Event).where(models.Event.id == id))
+    event = event_result.scalars().first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "Event does not exist")
+    found = db.execute(select(models.save).where(models.save.c.user_id == user.id, models.save.c.event_id == id))
+    found_like = found.scalars().first()
+    if found_like:
+        db.execute(delete(models.save).where(models.save.c.user_id == user.id, models.save.c.event_id == id))
+        db.commit()
+        return {id : "unsaved"}
+    else:  
+        result = db.execute(insert(models.save).values(user_id = user.id, event_id = id).returning(models.save))
+        db.commit()
+        relation = result.scalars().all()
+        if not relation :
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could Not Save")
+        return {id: "saved"}
+    
+   
+
+
+
+
+
+
+
+
 
 """@router.get("/events/user")
 def test(db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user)):
@@ -59,49 +108,3 @@ def test(db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")
 
         return events"""
-
-
-   
-
-@router.get("/events/{id}", response_model=EventOut)
-def get_event(*, db: Session = Depends(get_db), id: int):
-    result = db.execute(select(models.Event).where(models.Event.id == id))
-    event = result.scalars().first()
-    if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return event
-
-
-
-@router.post("/events",status_code=status.HTTP_201_CREATED, response_model= Event)
-def create_event(*, db: Session = Depends(get_db), event: EventBase):
-   
-    if event.event_start:
-        event_time = datetime(event.event_start.year, event.event_start.month, event.event_start.day, event.event_start.hour, event.event_start.minute)
-    else:
-        event_time = None
-    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name, event_start = event_time, description = event.description, time=event.time, img = event.img, link = event.link))
-    db.commit()
-    created = result.scalars().first()
-    if not created:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return created
-
-
-@router.put("/events/{id}", response_model=Event, status_code=status.HTTP_201_CREATED)
-def update_event(*, db: Session = Depends(get_db), id: int, event: EventBase):
-    result = db.execute( update(models.Event).returning(models.Event).where(models.Event.id == id).values(track = event.track, name = event.name, date = event.date, description = event.description, time = event.time, img = event.img, link = event.link))
-    event = result.scalars().first()
-    if not event: 
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-    return event
-
-@router.delete("/events/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_event(*, db: Session = Depends(get_db), id: int):
-    res = db.execute(delete(models.Event).returning(models.Event).where(models.Event.id == id))
-    db.commit()
-    deleted = res.scalars().first()
-    if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    
-    
