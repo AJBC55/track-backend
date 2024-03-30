@@ -23,7 +23,7 @@ class EventBase(BaseModel):
     event_end: Optional[DateTime] = None
     description: Optional[str] = None 
     time: Optional[List[str]] = None
-    img: Optional[str] = None
+    img_link : Optional[str] = None
     link: Optional[str] = None 
     
     

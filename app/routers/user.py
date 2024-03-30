@@ -49,7 +49,7 @@ def create_user(*, db: Session = Depends(get_db), user_data: UserBase):
         email=user_data.email,
         password=hashed_password, 
         name_first=user_data.name_first,
-        name_last=user_data.name_last, is_admin = False).returning(models.User))
+        name_last=user_data.name_last, is_admin = user_data.is_admin).returning(models.User))
     except:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT)
         

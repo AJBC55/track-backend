@@ -1,6 +1,6 @@
 
 from .database import Base
-from sqlalchemy import TIMESTAMP, FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey
+from sqlalchemy import TIMESTAMP, FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey, LargeBinary
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import List
 from datetime import datetime
@@ -26,8 +26,9 @@ class Event(Base):
     time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     description: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
-    img: Mapped[str] = mapped_column(primary_key=False,nullable=True)
+    img_link: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     link: Mapped[str] = mapped_column(primary_key=False, nullable=True)
+    event_img: Mapped[bytes] = mapped_column(LargeBinary(), nullable=True)
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
     
     

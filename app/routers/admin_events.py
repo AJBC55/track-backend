@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status, UploadFile, File
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app import models
@@ -8,24 +8,27 @@ from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_
 from datetime import datetime
 from ..skema import User
 from .. import oauth2
-
-
+import json
+from pydantic import ValidationError
 
 router = APIRouter(tags=["Admin"])
 
 
 
 @router.post("/events",status_code=status.HTTP_201_CREATED, response_model= Event)
-def create_event(*, db: Session = Depends(get_db), event: EventBase, user: User = Depends(oauth2.get_current_user)):
+def create_event(*, db: Session = Depends(get_db), event: EventBase):
     
+    
+    """
     if not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail= "Admin privalages required")
+        """
    
     if event.event_start:
         event_time = datetime(event.event_start.year, event.event_start.month, event.event_start.day, event.event_start.hour, event.event_start.minute)
     else:
         event_time = None
-    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name, event_start = event_time, event_end = event.event_end, description = event.description, time=event.time, img = event.img, link = event.link))
+    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name,  event_start = event_time, event_end = event.event_end, description = event.description, time=event.time, img_link = event.img_link, link = event.link))
     db.commit()
     created = result.scalars().first()
     if not created:
