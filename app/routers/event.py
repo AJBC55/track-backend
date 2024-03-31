@@ -37,7 +37,7 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         events = []
         for event, save, id in result:
               # 'event' is an instance of 'models.Event', 'save' could be 'models.save' or None
-            events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img = event.img, link = event.link, is_saved = True if id else False))  
+            events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img_link = event.img_link, link = event.link, is_saved = True if id else False))  
 
         return events
 
