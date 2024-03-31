@@ -20,9 +20,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 #eperation  time 
 
 
-SECRET_KEY = "1f19d4458acd56220a5a3c18b39de46fa7bef5556d5d36724b8be6e3acf082c3"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_token(data: dict):
     expires_Delta = timedelta(minutes=settings.access_token_expire_minutes)
@@ -37,7 +34,7 @@ def create_token(data: dict):
 
 def verify_token(token: str, credintialsExeption):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     
         id = payload.get("user_id")
        
@@ -62,7 +59,7 @@ def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(g
 ns = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)   
 def try_token(token: str = Depends(ns)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     
         id = payload.get("user_id")
        
