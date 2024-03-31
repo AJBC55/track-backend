@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Form, HTTPException, status, UploadFile, File
+from click import File
+from fastapi import APIRouter, Depends, Form, HTTPException, status, UploadFile
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app import models
@@ -58,3 +59,16 @@ def delete_event(*, db: Session = Depends(get_db), id: int,  user: User = Depend
     deleted = res.scalars().first()
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    
+    
+    
+@router.post("/img/{id}")
+def add_event_img(*, db: Session = Depends(get_db), id: int, img: UploadFile ):
+    
+    file = img.file.read()
+    result = db.execute(update(models.Event).returning(models.Event.id).values(event_img = file).where(models.Event.id == id ))
+    full_event = result.scalars().first()
+    db.commit()
+    if not full_event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return full_event

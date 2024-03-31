@@ -1,8 +1,7 @@
 
 
 
-from pickletools import OpcodeInfo
-from unittest import result
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.database import get_db
 from sqlalchemy.orm import Session
@@ -10,6 +9,7 @@ from app import models
 from app.skema import Event, EventBase, EventOut
 from typing import List, Optional
 from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_
+from fastapi.responses import Response
 
 
 from .. skema import TokenData, User
@@ -49,6 +49,20 @@ def get_event(*, db: Session = Depends(get_db), id: int):
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return event
+
+@router.get("/events/img/{id}")
+def get_event_img(*, db: Session = Depends(get_db), id: int):
+    result = db.execute(select(models.Event.event_img).where(models.Event.id == id))
+    img = result.scalar_one_or_none()
+    if not img:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return Response(img, media_type="image/png")
+
+
+
+
+
+
 
 
 @router.get("/save",response_model=List[Event])

@@ -1,6 +1,6 @@
 
 from .database import Base
-from sqlalchemy import TIMESTAMP, FallbackAsyncAdaptedQueuePool, String, ARRAY, DateTime, text, Table, Column, ForeignKey, LargeBinary
+from sqlalchemy import  String, ARRAY, DateTime, text, Table, Column, ForeignKey, LargeBinary
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import List
 from datetime import datetime
@@ -46,8 +46,10 @@ class News(Base):
 class User(Base): 
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(primary_key=True, unique=True)
     password: Mapped[str] = mapped_column(primary_key=False)
+    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    phone_number: Mapped[str] = mapped_column(nullable=True)
     name_first: Mapped[str] = mapped_column(primary_key=False, nullable=True)
     name_last: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     is_admin: Mapped[bool] = mapped_column(primary_key=False, server_default=text("false"), nullable=True,)
