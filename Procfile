@@ -1,2 +1,2 @@
 web: uvicorn app.main:app --host=0.0.0.0 --port=${port:-5000}
-postgresql-cylindrical-64374
+release: ./manage.py migrate --no-input
