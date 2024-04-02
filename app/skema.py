@@ -56,8 +56,10 @@ class News(NewsBase):
     
 #pydantic model for a user
 class UserBase(BaseModel):
+    username: str
     email: EmailStr
     password:str
+    phone_number: Optional[str] = None
     name_first: Optional[str] = None
     name_last: Optional[str] = None
     is_admin: Optional[bool] = False

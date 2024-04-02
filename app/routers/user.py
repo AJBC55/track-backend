@@ -47,7 +47,9 @@ def create_user(*, db: Session = Depends(get_db), user_data: UserBase):
     
         result = db.execute(insert(models.User).values(
         email=user_data.email,
+        username=user_data.username,
         password=hashed_password, 
+        phone_number=user_data.phone_number,
         name_first=user_data.name_first,
         name_last=user_data.name_last, is_admin = user_data.is_admin).returning(models.User))
     except:
