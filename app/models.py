@@ -27,7 +27,7 @@ class Event(Base):
     description: Mapped[str] = mapped_column(primary_key=False,nullable=True)
     time: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     img_link: Mapped[str] = mapped_column(primary_key=False,nullable=True)
-    link: Mapped[str] = mapped_column(primary_key=False, nullable=True)
+    ticket_link: Mapped[str] = mapped_column(primary_key=False, nullable=True)
     event_img: Mapped[bytes] = mapped_column(LargeBinary(), nullable=True)
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
     
