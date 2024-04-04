@@ -29,7 +29,7 @@ def create_event(*, db: Session = Depends(get_db), event: EventBase):
         event_time = datetime(event.event_start.year, event.event_start.month, event.event_start.day, event.event_start.hour, event.event_start.minute)
     else:
         event_time = None
-    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name,  event_start = event_time, event_end = event.event_end, description = event.description, time=event.time, img_link = event.img_link, link = event.link))
+    result = db.execute(insert(models.Event).returning(models.Event).values(track = event.track, name=event.name,  event_start = event_time, event_end = event.event_end, description = event.description, time=event.time, img_link = event.img_link, ticket_link = event.ticket_link))
     db.commit()
     created = result.scalars().first()
     if not created:
@@ -42,7 +42,7 @@ def create_event(*, db: Session = Depends(get_db), event: EventBase):
 def update_event(*, db: Session = Depends(get_db), id: int, event: EventBase,  user: User = Depends(oauth2.get_current_user)):
     if not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail= "Admin privalages required")
-    result = db.execute( update(models.Event).returning(models.Event).where(models.Event.id == id).values(track = event.track, name = event.name, event_start = event.event_start, event_end = event.event_end, description = event.description, time = event.time, img = event.img, link = event.link))
+    result = db.execute( update(models.Event).returning(models.Event).where(models.Event.id == id).values(track = event.track, name = event.name, event_start = event.event_start, event_end = event.event_end, description = event.description, time = event.time, img_link = event.img_link, ticket_link = event.ticket_link))
     event = result.scalars().first()
     if not event: 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) 

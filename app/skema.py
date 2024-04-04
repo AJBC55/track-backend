@@ -24,7 +24,7 @@ class EventBase(BaseModel):
     description: Optional[str] = None 
     time: Optional[List[str]] = None
     img_link : Optional[str] = None
-    link: Optional[str] = None 
+    ticket_link: Optional[str] = None 
     
     
     
@@ -114,6 +114,6 @@ class EventOut(BaseModel):
     description: Optional[str] = None 
     time: Optional[List[str]] = None
     img_link: Optional[str] = None
-    link: Optional[str] = None
+    ticket_link: Optional[str] = None
     event_start: Optional[datetime.datetime]
     is_saved: Optional[bool] = False
