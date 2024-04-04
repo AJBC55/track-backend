@@ -65,7 +65,7 @@ def get_event_img(*, db: Session = Depends(get_db), id: int):
 
 
 
-@router.get("/save",response_model=List[Event])
+@router.get("/save",response_model=List[EventOut])
 def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user), limit: int = 10):
     result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id).limit(limit))
     saved_events = result.scalars().all()
