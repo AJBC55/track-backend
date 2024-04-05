@@ -42,6 +42,16 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         return events
 
 
+
+
+@router.get("/{id}", response_model=EventOut)
+def get_event(*, db: Session = Depends(get_db), id: int):
+    result = db.execute(select(models.Event).where(models.Event.id == id))
+    event = result.scalars().first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return event
+
 @router.get("/save",response_model=List[EventOut])
 def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user), limit: int = 10):
     result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id).limit(limit))
@@ -49,14 +59,6 @@ def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oaut
     if not saved_events:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return saved_events
-
-""" @router.get("/{id}", response_model=EventOut)
-def get_event(*, db: Session = Depends(get_db), id: int):
-    result = db.execute(select(models.Event).where(models.Event.id == id))
-    event = result.scalars().first()
-    if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return event """
 
 @router.get("/events/img/{id}")
 def get_event_img(*, db: Session = Depends(get_db), id: int):
