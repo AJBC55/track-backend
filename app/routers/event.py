@@ -29,7 +29,7 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")
         return events
     else:
-        smt = select(models.Event, models.save).join(
+        smt = select(models.Event, models.save).limit(limit).offset(skip).where(models.Event.name.contains(search)).join(
         models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True )
      
         
