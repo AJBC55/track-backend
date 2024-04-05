@@ -30,7 +30,7 @@ def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0,
         return events
     else:
         smt = select(models.Event, models.save).join(
-        models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True )
+        models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True ).limit(limit).offset(skip).where(models.Event.name.contains(search))
      
         
         result = db.execute(smt)
@@ -54,7 +54,7 @@ def get_event(*, db: Session = Depends(get_db), id: int):
 
 @router.get("/save",response_model=List[EventOut])
 def get_saved_events(*, db: Session = Depends(get_db), user: User = Depends(oauth2.get_current_user), limit: int = 10):
-    result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id).limit(limit))
+    result = db.execute(select(models.Event).join(models.save).where(models.save.c.user_id == user.id))
     saved_events = result.scalars().all()
     if not saved_events:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
