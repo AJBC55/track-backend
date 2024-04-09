@@ -32,12 +32,9 @@ class Event(Base):
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True),server_default=text('now()'))
     
 
-    
 
-    
-    
-    
-    
+
+
 class News(Base):
     __tablename__ = "news"
     
