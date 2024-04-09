@@ -22,27 +22,19 @@ from datetime import datetime
 router  = APIRouter(prefix="/events", tags=["Events"])
 
 @router.get("", response_model=List[EventOut])
-def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: TokenData = Depends(oauth2.try_token)):
+def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: User = Depends(oauth2.get_current_user)):
     now = datetime.now()
-    if not user:
-        
-        result = db.execute(select(models.Event).filter(models.Event.event_start >= now).limit(limit).offset(skip).where( models.Event.name.contains(search)))
-        events = result.scalars().all()  # It should be scalars().all(), not scalars.all()
-        if not events:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found.")
-        return events
-    else:
-        smt = select(models.Event, models.save).join(
-        models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True ).filter(models.Event.event_start >= now).limit(limit).offset(skip).where(models.Event.name.contains(search))
+    
+    smt = select(models.Event, models.save).join(models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True ).filter(models.Event.event_start >= now).limit(limit).offset(skip).where(models.Event.name.contains(search))
      
         
-        result = db.execute(smt)
-        events = []
-        for event, save, id in result:
+    result = db.execute(smt)
+    events = []
+    for event, save, id in result:
               # 'event' is an instance of 'models.Event', 'save' could be 'models.save' or None
-            events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img_link = event.img_link, ticket_link = event.ticket_link, is_saved = True if id else False))  
+        events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img_link = event.img_link, ticket_link = event.ticket_link, is_saved = True if id else False))  
 
-        return events
+    return events
 
 
 
