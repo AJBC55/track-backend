@@ -117,3 +117,27 @@ class EventOut(BaseModel):
     ticket_link: Optional[str] = None
     event_start: Optional[datetime.datetime]
     is_saved: Optional[bool] = False
+
+
+
+class DeviceCreate(BaseModel):
+    device_id: str 
+    is_android: Optional[bool] = False
+
+
+class DeviceOut(DeviceCreate):
+    id: int 
+    device_id: str 
+    is_android: bool 
+    token: Optional[str] = None
+    created_at: str
+    updated_at: str 
+    class Config:
+        from_attributes  = True 
+
+class DeviceToken(BaseModel):
+    device_id: str
+    token: str
+
+
+
