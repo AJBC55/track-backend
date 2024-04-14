@@ -62,7 +62,7 @@ def delete_event(*, db: Session = Depends(get_db), id: int,  user: User = Depend
     
     
     
-@router.put("/img/{id}")
+@router.post("/img/{id}")
 def add_event_img(*, db: Session = Depends(get_db), id: int, img: UploadFile ):
     
     file = img.file.read()
