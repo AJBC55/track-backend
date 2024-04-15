@@ -22,7 +22,7 @@ from datetime import datetime
 router  = APIRouter(prefix="/events", tags=["Events"])
 
 @router.get("", response_model=List[EventOut])
-def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: User = Depends(oauth2.get_current_user)):
+def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: User = Depends(oauth2.try_token)):
     now = datetime.now()
     
     smt = select(models.Event, models.save).join(models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True ).filter(models.Event.event_start >= now).limit(limit).offset(skip).where(models.Event.name.contains(search))
