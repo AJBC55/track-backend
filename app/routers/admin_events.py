@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from app import models
 from app.skema import Event, EventBase, EventOut
 from typing import List, Optional
-from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_
+from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_, text
 from datetime import datetime
 from ..skema import User
 from .. import oauth2
 import json
 from pydantic import ValidationError
 
-router = APIRouter(tags=["Admin"])
+router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
 
@@ -72,3 +72,19 @@ def add_event_img(*, db: Session = Depends(get_db), id: int, img: UploadFile ):
     if not full_event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return full_event
+
+
+@router.get("/events", response_model=List[EventOut])
+def get_events_admin(*, db: Session = Depends(get_db), search: Optional[str] = None):
+    if search:
+        result =  db.execute(text("SELECT * FROM event WHERE name LIKE '%s' " % search))
+    else:
+        result = db.execute(text("SELECT * FROM event"))
+
+    events = result.all()
+    
+
+    if not events:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    
+    return events

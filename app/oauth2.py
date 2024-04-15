@@ -53,6 +53,7 @@ def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(g
     
     request = db.execute(select(models.User).where(models.User.id == tk.id))
     user = request.scalars().first()
+    
     return user 
  
 # optinal login 
@@ -66,12 +67,12 @@ def try_token(token: str = Depends(ns)):
         
        
         if id == None:
-            token_data = skema.TokenData()
+            token_data = None
         else:
             token_data = skema.TokenData(id=id)
         
     except:
-       token_data = skema.TokenData()
+       return None 
     return token_data
 
     

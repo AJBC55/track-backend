@@ -2,14 +2,16 @@
 
 
 
+from cgitb import text
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app import models
 from app.skema import Event, EventBase, EventOut
 from typing import List, Optional
-from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_
+from sqlalchemy import DateTime, outerjoin, select, update, delete, insert, and_, text
 from fastapi.responses import Response
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from .. skema import TokenData, User
@@ -22,18 +24,28 @@ from datetime import datetime
 router  = APIRouter(prefix="/events", tags=["Events"])
 
 @router.get("", response_model=List[EventOut])
-def get_events(*, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: User = Depends(oauth2.get_current_user)):
-    now = datetime.now()
-    
-    smt = select(models.Event, models.save).join(models.save, and_(models.save.c.event_id == models.Event.id,models.save.c.user_id == user.id),isouter=True ).filter(models.Event.event_start >= now).limit(limit).offset(skip).where(models.Event.name.contains(search))
-     
-        
-    result = db.execute(smt)
-    events = []
-    for event, save, id in result:
-              # 'event' is an instance of 'models.Event', 'save' could be 'models.save' or None
-        events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img_link = event.img_link, ticket_link = event.ticket_link, is_saved = True if id else False))  
+def get_events(*, db: AsyncSession = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", user: User = Depends(oauth2.try_token)):
 
+    now = datetime.now()
+
+
+    if user:
+
+    
+        smt = select(models.Event, models.save).join(models.save, models.save.c.event_id == models.Event.id,isouter=True ).filter(models.Event.event_start >= now).limit(limit).offset(skip).where(models.Event.name.contains(search))
+        txt = text("SELECT * FROM event LEFT JOIN save ON save.event_id = event.id WHERE event_start >= %s AND name LIKE %s LIMIT %s OFFSET %s" % (now, search, limit, skip))
+        result = db.execute(smt)
+        events = []
+        for event, save, id in result:
+                # 'event' is an instance of 'models.Event', 'save' could be 'models.save' or None
+            events.append(EventOut(id = event.id, track = event.track, name = event.name, event_start=event.event_start, description=event.description, time = event.time, img_link = event.img_link, ticket_link = event.ticket_link, is_saved = True if id else False))  
+
+        return events
+    else:
+        result = db.execute(text("SELECT * FROM event WHERE event_start >= '%s' AND name LIKE '%%%s%%' LIMIT %s OFFSET %s" % (now, search, limit, skip)))
+     
+        events = result.all()
+    
     return events
 
 
